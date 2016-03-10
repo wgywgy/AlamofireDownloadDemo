@@ -13,7 +13,7 @@
 		3ABFD0481C89512E0095B42D /* Main.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 3ABFD0461C89512E0095B42D /* Main.storyboard */; };
 		3ABFD04A1C89512E0095B42D /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 3ABFD0491C89512E0095B42D /* Assets.xcassets */; };
 		3ABFD04D1C89512E0095B42D /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 3ABFD04B1C89512E0095B42D /* LaunchScreen.storyboard */; };
-		3ABFD0561C8951B50095B42D /* Downloader.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3ABFD0551C8951B50095B42D /* Downloader.swift */; };
+		3ABFD0561C8951B50095B42D /* DownloadProtocol.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3ABFD0551C8951B50095B42D /* DownloadProtocol.swift */; };
 		3ABFD0581C895D060095B42D /* DownloadObject.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3ABFD0571C895D060095B42D /* DownloadObject.swift */; };
 		3AC6480A1C8D72C500E8186E /* NetworkManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3AC648091C8D72C500E8186E /* NetworkManager.swift */; };
 		3AEEC0431C898F8A002F225A /* RAC.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3AEEC0401C898F8A002F225A /* RAC.swift */; };
@@ -31,7 +31,7 @@
 		3ABFD0491C89512E0095B42D /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
 		3ABFD04C1C89512E0095B42D /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/LaunchScreen.storyboard; sourceTree = "<group>"; };
 		3ABFD04E1C89512E0095B42D /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
-		3ABFD0551C8951B50095B42D /* Downloader.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Downloader.swift; sourceTree = "<group>"; };
+		3ABFD0551C8951B50095B42D /* DownloadProtocol.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = DownloadProtocol.swift; sourceTree = "<group>"; };
 		3ABFD0571C895D060095B42D /* DownloadObject.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = DownloadObject.swift; sourceTree = "<group>"; };
 		3AC647FF1C89907600E8186E /* ADownloadDemo-Bridging-Header.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "ADownloadDemo-Bridging-Header.h"; sourceTree = "<group>"; };
 		3AC648091C8D72C500E8186E /* NetworkManager.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = NetworkManager.swift; sourceTree = "<group>"; };
@@ -109,7 +109,7 @@
 		3ABFD0541C8951A50095B42D /* Downloader */ = {
 			isa = PBXGroup;
 			children = (
-				3ABFD0551C8951B50095B42D /* Downloader.swift */,
+				3ABFD0551C8951B50095B42D /* DownloadProtocol.swift */,
 			);
 			name = Downloader;
 			sourceTree = "<group>";
@@ -268,7 +268,7 @@
 				3AC6480A1C8D72C500E8186E /* NetworkManager.swift in Sources */,
 				3ABFD0431C89512E0095B42D /* AppDelegate.swift in Sources */,
 				3ABFD0581C895D060095B42D /* DownloadObject.swift in Sources */,
-				3ABFD0561C8951B50095B42D /* Downloader.swift in Sources */,
+				3ABFD0561C8951B50095B42D /* DownloadProtocol.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

@@ -8,14 +8,21 @@
 
 import UIKit
 
+struct Links {
+    static let arrayOfLinks: [String] =
+    ["http://upload-images.jianshu.io/upload_images/182346-731485f91ca1e7f9.JPG?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240",
+        "http://res.taig.com/installer/TaiGJBreak_244_5174_v.exe",
+        "http://res.taig.com/installer/TaiGJBreak_v245_5266.exe",
+        "http://res.taig.com/installer/TaiGJBreak_1210.zip"]
+}
+
 class ViewController: UIViewController {
 
-    let orginUrl1 = "http://upload-images.jianshu.io/upload_images/182346-731485f91ca1e7f9.JPG?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240"
-    let orginUrl2 = "http://res.taig.com/installer/TaiGJBreak_244_5174_v.exe"
-    let orginUrl3 = "http://res.taig.com/installer/TaiGJBreak_v245_5266.exe"
-    let orginUrl4 = "http://res.taig.com/installer/TaiGJBreak_1210.zip"
-    var downloadObjs = [DownloadObject]()
-    
+    var downloadObjs = [DownloadObject(downloadUrlStr: Links.arrayOfLinks[0], savePath: ""),
+        DownloadObject(downloadUrlStr: Links.arrayOfLinks[1], savePath: ""),
+        DownloadObject(downloadUrlStr: Links.arrayOfLinks[2], savePath: ""),
+        DownloadObject(downloadUrlStr: Links.arrayOfLinks[3], savePath: "")]
+
     @IBOutlet weak var progressView1: UIProgressView!
     @IBOutlet weak var progressView2: UIProgressView!
     @IBOutlet weak var progressView3: UIProgressView!
@@ -28,12 +35,7 @@ class ViewController: UIViewController {
     
     override func viewDidLoad() {
         super.viewDidLoad()
-        let downloadObj1 = DownloadObject(downloadUrlStr: orginUrl1, savePath: "sss")
-        let downloadObj2 = DownloadObject(downloadUrlStr: orginUrl2, savePath: "")
-        let downloadObj3 = DownloadObject(downloadUrlStr: orginUrl3, savePath: "")
-        let downloadObj4 = DownloadObject(downloadUrlStr: orginUrl4, savePath: "")
-        downloadObjs = [downloadObj1, downloadObj2, downloadObj3, downloadObj4]
-        NetworkManager.sharedInstance
+        _ = NetworkManager.sharedInstance.backgroundManager
         
         bindView()
     }
@@ -53,12 +55,12 @@ class ViewController: UIViewController {
     func bindView() {
         let downloadObj1 = downloadObjs[0]
         RACObserve(downloadObj1, keyPath: "reciveDataBytes").subscribeNext { (x) -> Void in
-            print("totalDataBytes \(downloadObj1.totalDataBytes)")
+//            print("totalDataBytes \(downloadObj1.totalDataBytes)")
             let recivedSize = x as! Float
             if (downloadObj1.totalDataBytes > 0) {
-                let progress = recivedSize / Float(downloadObj1.totalDataBytes)
-                print("progress \(progress)")
+//                let progress = recivedSize / Float(downloadObj1.totalDataBytes)
                 dispatch_async(dispatch_get_main_queue()) {
+//                print("progress \(progress)")
                     self.progressView1.progress = recivedSize / Float(downloadObj1.totalDataBytes)
                 }
             }
@@ -72,12 +74,12 @@ class ViewController: UIViewController {
 
         let downloadObj2 = downloadObjs[1]
         RACObserve(downloadObj2, keyPath: "reciveDataBytes").subscribeNext { (x) -> Void in
-            print("reciveDataBytes \(downloadObj2.reciveDataBytes)")
-            print("totalDataBytes \(downloadObj2.totalDataBytes)")
+//            print("reciveDataBytes \(downloadObj2.reciveDataBytes)")
+//            print("totalDataBytes \(downloadObj2.totalDataBytes)")
             let recivedSize = x as! Float
             if (downloadObj2.totalDataBytes > 0) {
                 let progress = recivedSize / Float(downloadObj2.totalDataBytes)
-                print("progress \(progress)")
+//                print("progress \(progress)")
                 dispatch_async(dispatch_get_main_queue()) {
                     self.progressView2.progress = recivedSize / Float(downloadObj2.totalDataBytes)
                 }

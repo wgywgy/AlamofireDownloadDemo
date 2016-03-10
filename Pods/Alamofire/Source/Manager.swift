@@ -446,8 +446,16 @@ public class Manager {
             - parameter error:   If an error occurred, an error object indicating how the transfer failed, otherwise nil.
         */
         public func URLSession(session: NSURLSession, task: NSURLSessionTask, didCompleteWithError error: NSError?) {
+            
+            if let userInfo = error?.userInfo as? [String: AnyObject],
+                resumeData = userInfo[NSURLSessionDownloadTaskResumeData] as? NSData {
+                NSUserDefaults.standardUserDefaults().setObject(resumeData, forKey: task.originalRequest!.URL!.absoluteString)
+                NSUserDefaults.standardUserDefaults().synchronize()
+            }
+
             if let taskDidComplete = taskDidComplete {
                 taskDidComplete(session, task, error)
+                
             } else if let delegate = self[task] {
                 delegate.URLSession(session, task: task, didCompleteWithError: error)
             }

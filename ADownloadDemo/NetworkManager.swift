@@ -9,7 +9,7 @@
 import Foundation
 import Alamofire
 
-class NetworkManager: NSObject, NSURLSessionDelegate {
+class NetworkManager {
     
     class func defaultConfiguration() -> NSURLSessionConfiguration {
         let bundleId = "com.ex.sarrs"
@@ -19,16 +19,16 @@ class NetworkManager: NSObject, NSURLSessionDelegate {
         return sessionConfig
     }
     
-    func defaultSession() -> NSURLSession {
-        var token: dispatch_once_t = 0
-        
-        var session: NSURLSession?
-        dispatch_once(&token) {
-            session =
-                NSURLSession(configuration: NetworkManager.defaultConfiguration(), delegate: self, delegateQueue: NSOperationQueue.mainQueue())
-        }
-        return session!
-    }
+//    func defaultSession() -> NSURLSession {
+//        var token: dispatch_once_t = 0
+//        
+//        var session: NSURLSession?
+//        dispatch_once(&token) {
+//            session =
+//                NSURLSession(configuration: NetworkManager.defaultConfiguration(), delegate: self, delegateQueue: NSOperationQueue.mainQueue())
+//        }
+//        return session!
+//    }
     
 //    static let sharedInstance = NetworkManager()
     
@@ -40,11 +40,22 @@ class NetworkManager: NSObject, NSURLSessionDelegate {
 //        return sessionConfig
 //    }()
 
+//    class var sharedInstance: NetworkManager {
+//        struct Singleton {
+//            static let instance = NetworkManager()
+//        }
+//        
+//        return Singleton.instance
+//    }
+    
+    
+    
     class var sharedInstance: NetworkManager {
         struct Singleton {
             static let instance = NetworkManager()
+//            Alamofire.Manager(configuration: NetworkManager.defaultConfiguration())
         }
-        
+//
         return Singleton.instance
     }
     
@@ -57,7 +68,7 @@ class NetworkManager: NSObject, NSURLSessionDelegate {
     lazy var backgroundManager: Alamofire.Manager = {
         return Alamofire.Manager(configuration: NetworkManager.defaultConfiguration())
 //        return Alamofire.Manager(session: defaultSession(), delegate: Manager.SessionDelegate)
-//        return Alamofire.Manager(session: defaultSession(), delegate: self)
+//        return Alamofire.Manager(session: NetworkManager.defaultSession(), delegate: self)
     }()
  
     var backgroundCompletionHandler: (() -> Void)? {

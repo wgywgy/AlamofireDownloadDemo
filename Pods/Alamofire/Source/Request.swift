@@ -180,6 +180,8 @@ public class Request {
             downloadTask = downloadDelegate.downloadTask
         {
             downloadTask.cancelByProducingResumeData { data in
+//                ...
+                
                 downloadDelegate.resumeData = data
             }
         } else {
@@ -324,6 +326,8 @@ public class Request {
                         resumeData = userInfo[NSURLSessionDownloadTaskResumeData] as? NSData
                     {
                         downloadDelegate.resumeData = resumeData
+//                        NSUserDefaults.standardUserDefaults().setObject(resumeData, forKey: task.originalRequest!.URL!.absoluteString)
+//                        NSUserDefaults.standardUserDefaults().synchronize()
                     }
                 }
 

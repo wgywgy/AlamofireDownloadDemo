@@ -34,9 +34,6 @@ class DownloadObject: NSObject {
     var cancelledData: NSData?
     var downloadRequest: Request?
     
-    let destination =
-    Alamofire.Request.suggestedDownloadDestination()
-    
     convenience init(downloadUrlStr: String, savePath: String) {
         self.init()
 
@@ -44,11 +41,7 @@ class DownloadObject: NSObject {
         self.savePath = savePath
         createDate = NSDate()
         
-        NSNotificationCenter.defaultCenter().addObserver(self, selector:"cancelTask", name:UIApplicationWillTerminateNotification, object:nil)
-    }
-    
-    func cancelTask() {
-        self.cancelDownload()
+        NSNotificationCenter.defaultCenter().addObserver(self, selector:"cancelDownload", name:UIApplicationWillTerminateNotification, object:nil)
     }
 }
 
@@ -75,7 +68,16 @@ extension DownloadObject: DownloadProtocol {
 
     
     func startDownload() {
-        startDownload(downloadUrlStr!, destinationUrl: NSURL(string: savePath!)!)
+//        self.cancelledData = NSUserDefaults.standardUserDefaults().objectForKey(self.downloadUrlStr!) as? NSData
+        self.cancelledData = NSUserDefaults.standardUserDefaults().objectForKey(self.downloadUrlStr!) as? NSData
+
+        if self.cancelledData != nil {
+            downloadRequest = NetworkManager.sharedInstance.backgroundManager.download(self.cancelledData!, destination: defaultDestination())
+            downloadRequest!.progress(downloadProgress) //下载进度
+            downloadRequest!.response(completionHandler: downloadResponse) //下载停止响应
+        } else {
+            startDownload(downloadUrlStr!, destinationUrl: NSURL(string: savePath!)!)
+        }
     }
     
     func startDownload(URLString: String, destinationUrl: NSURL) {
@@ -120,6 +122,7 @@ extension DownloadObject: DownloadProtocol {
     }
     
     func cancelDownload() {
+        print("canceled")
         downloadRequest?.cancel()
     }
     
