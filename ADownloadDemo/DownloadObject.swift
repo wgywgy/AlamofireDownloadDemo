@@ -9,13 +9,8 @@
 import UIKit
 import Alamofire
 
-enum DownloadState: Int {
-    case Prepare
-    case Waiting
-    case Executing
-    case Paused
-    case Finished
-    case Failed
+enum DownloadStatus: Int {
+    case Prepare, Waiting, Executing, Paused, Finished, Failed, Deleted
 }
 
 class DownloadObject: NSObject {
@@ -33,15 +28,25 @@ class DownloadObject: NSObject {
 
     var cancelledData: NSData?
     var downloadRequest: Request?
+    var downloadStatus = DownloadStatus.Prepare {
+        didSet {
+            downloadStatusRaw = downloadStatus.rawValue
+        }
+    }
     
-    convenience init(downloadUrlStr: String, savePath: String) {
+    dynamic var downloadStatusRaw = 0
+    
+    convenience init(displayName: String, downloadUrlStr: String, savePath: String) {
         self.init()
 
+        self.displayName = displayName
         self.downloadUrlStr = downloadUrlStr
         self.savePath = savePath
         createDate = NSDate()
         
-        NSNotificationCenter.defaultCenter().addObserver(self, selector:"cancelDownload", name:UIApplicationWillTerminateNotification, object:nil)
+        NSUserDefaults.standardUserDefaults().setObject(downloadUrlStr, forKey: displayName)
+        
+        NSNotificationCenter.defaultCenter().addObserver(self, selector:#selector(DownloadObject.cancelDownload), name:UIApplicationWillTerminateNotification, object:nil)
     }
 }
 
@@ -51,6 +56,7 @@ extension DownloadObject: DownloadProtocol {
 
     func defaultDestination() -> DownloadFileDestination {
         return { temporaryURL, response -> NSURL in
+            
             let donwloadPath =
             NSSearchPathForDirectoriesInDomains(.DocumentDirectory, .UserDomainMask, true)[0].stringByAppendingString("/downloads")
 
@@ -61,36 +67,47 @@ extension DownloadObject: DownloadProtocol {
             }
             
             let downloadPathUrl = NSURL(fileURLWithPath: donwloadPath).URLByAppendingPathComponent(response.suggestedFilename!)
-            print("downloadPathUrl \(downloadPathUrl)")
+            print("!!downloadPathUrl \(downloadPathUrl)")
+            NSUserDefaults.standardUserDefaults().setObject(nil, forKey: response.URL!.absoluteString)
+            
+            self.downloadStatus = .Finished
             return downloadPathUrl
         }
     }
 
-    
     func startDownload() {
-//        self.cancelledData = NSUserDefaults.standardUserDefaults().objectForKey(self.downloadUrlStr!) as? NSData
-        self.cancelledData = NSUserDefaults.standardUserDefaults().objectForKey(self.downloadUrlStr!) as? NSData
-
-        if self.cancelledData != nil {
-            downloadRequest = NetworkManager.sharedInstance.backgroundManager.download(self.cancelledData!, destination: defaultDestination())
-            downloadRequest!.progress(downloadProgress) //下载进度
-            downloadRequest!.response(completionHandler: downloadResponse) //下载停止响应
-        } else {
-            startDownload(downloadUrlStr!, destinationUrl: NSURL(string: savePath!)!)
+        // 根据DisplayName找到Url, Url 找 NSData
+        let downloadUrl = getContinueUrlStr()
+        
+        if cancelledData == nil {
+            cancelledData = NSUserDefaults.standardUserDefaults().objectForKey(downloadUrl) as? NSData
         }
+
+        if cancelledData != nil {
+            print("start by data length: \(cancelledData?.length)")
+            downloadRequest = DownloadNetworkManager.sharedInstance.backgroundManager.download(cancelledData!, destination: defaultDestination())
+        } else {
+            print("start by url")
+//            startDownload(downloadUrlStr!, destinationUrl: NSURL(string: savePath!)!)
+            downloadRequest = DownloadNetworkManager.sharedInstance.backgroundManager.download(.GET, downloadUrlStr!, destination: defaultDestination())
+        }
+        downloadRequest!.progress(downloadProgress) //下载进度
+        downloadRequest!.response(completionHandler: downloadResponse) //下载停止响应
+
     }
     
-    func startDownload(URLString: String, destinationUrl: NSURL) {
-        downloadRequest = NetworkManager.sharedInstance.backgroundManager.download(.GET, URLString, destination: defaultDestination())
-        
-        downloadRequest!.progress(downloadProgress) //下载进度
-        
-        downloadRequest!.response(completionHandler: downloadResponse) //下载停止响应
+    func getContinueUrlStr() -> String {
+        var downloadUrl = NSUserDefaults.standardUserDefaults().objectForKey(displayName!) as! String
+        if downloadUrl.characters.count <= 0 {
+            downloadUrl = self.downloadUrlStr!
+        }
+        return downloadUrl
     }
     
     func downloadProgress(bytesRead: Int64, totalBytesRead: Int64, totalBytesExpectedToRead: Int64) {
         self.reciveDataBytes = totalBytesRead
         self.totalDataBytes = totalBytesExpectedToRead
+        downloadStatus = .Executing
         
         if self.oldRecivedTotalBytes == 0 {
             self.oldRecivedTotalBytes = totalBytesRead
@@ -111,9 +128,11 @@ extension DownloadObject: DownloadProtocol {
     func downloadResponse(request: NSURLRequest?, response: NSHTTPURLResponse?, data: NSData?, error:NSError?) {
         if let error = error {
             if error.code == NSURLErrorCancelled {
-                self.cancelledData = data //意外终止的话，把已下载的数据储存起来
-                NSUserDefaults.standardUserDefaults().setObject(data, forKey: self.downloadUrlStr!)
+                cancelledData = data
+//                NSUserDefaults.standardUserDefaults().setObject(data, forKey: request!.URL!.absoluteString)
+                downloadStatus = .Paused
             } else {
+                downloadStatus = .Failed
                 print("Failed to download file: \(response) \(error)")
             }
         } else {
@@ -122,17 +141,46 @@ extension DownloadObject: DownloadProtocol {
     }
     
     func cancelDownload() {
-        print("canceled")
         downloadRequest?.cancel()
+        downloadStatus = .Paused
     }
     
     func resumeDownload() {
         if let cancelledData = self.cancelledData {
-            downloadRequest = NetworkManager.sharedInstance.backgroundManager.download(cancelledData, destination: defaultDestination())
+            downloadRequest = DownloadNetworkManager.sharedInstance.backgroundManager.download(cancelledData, destination: defaultDestination())
             
             downloadRequest!.progress(downloadProgress) //下载进度
             
             downloadRequest!.response(completionHandler: downloadResponse) //下载停止响应
         }
     }
+    
+    func delete() {
+        downloadRequest?.cancelWithoutLeave()
+        downloadStatus = .Deleted
+        DownloadCleaner.cleanTmpDir()
+//        let downloadUrl = NSUserDefaults.standardUserDefaults().objectForKey(displayName!) as! String
+        NSUserDefaults.standardUserDefaults().setObject(nil, forKey: downloadUrlStr!)
+//        NSUserDefaults.standardUserDefaults().setObject(nil, forKey: displayName!)
+    }
+    
+    func processResumeData(resumeData: NSData, urlStr: String) -> NSData {
+        let resumeDataDict = try? NSPropertyListSerialization.propertyListWithData(resumeData, options: NSPropertyListReadOptions.Immutable, format: nil) as! NSMutableDictionary
+        
+        //2
+        let newResumeRequest = NSMutableURLRequest(URL: NSURL(string: urlStr)!)
+        newResumeRequest.addValue("bytes=\(resumeDataDict!["NSURLSessionResumeBytesReceived"])", forHTTPHeaderField: "Range")
+        
+        //3
+        let newResumeRequestData = NSKeyedArchiver.archivedDataWithRootObject(newResumeRequest)
+        
+        //4
+        resumeDataDict!.setObject(newResumeRequestData, forKey: "NSURLSessionResumeCurrentRequest")
+        resumeDataDict!.setObject("NewRemoteURL", forKey: "NSURLSessionResumeCurrentRequest")
+        
+        //5
+        let newResumeData: NSData? = try? NSPropertyListSerialization.dataWithPropertyList(resumeDataDict!, format: NSPropertyListFormat.XMLFormat_v1_0, options: 0)
+        return newResumeData!
+    }
+
 }

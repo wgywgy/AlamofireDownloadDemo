@@ -9,19 +9,19 @@
 import UIKit
 
 struct Links {
-    static let arrayOfLinks: [String] =
-    ["http://upload-images.jianshu.io/upload_images/182346-731485f91ca1e7f9.JPG?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240",
+    static let arrayOfLinks: [String] = [
         "http://res.taig.com/installer/TaiGJBreak_244_5174_v.exe",
+        "http://upload-images.jianshu.io/upload_images/182346-731485f91ca1e7f9.JPG?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240",
         "http://res.taig.com/installer/TaiGJBreak_v245_5266.exe",
         "http://res.taig.com/installer/TaiGJBreak_1210.zip"]
 }
 
 class ViewController: UIViewController {
 
-    var downloadObjs = [DownloadObject(downloadUrlStr: Links.arrayOfLinks[0], savePath: ""),
-        DownloadObject(downloadUrlStr: Links.arrayOfLinks[1], savePath: ""),
-        DownloadObject(downloadUrlStr: Links.arrayOfLinks[2], savePath: ""),
-        DownloadObject(downloadUrlStr: Links.arrayOfLinks[3], savePath: "")]
+    var downloadObjs = [DownloadObject(displayName: "22", downloadUrlStr: Links.arrayOfLinks[0], savePath: ""),
+        DownloadObject(displayName: "23", downloadUrlStr: Links.arrayOfLinks[1], savePath: ""),
+        DownloadObject(displayName: "24", downloadUrlStr: Links.arrayOfLinks[2], savePath: ""),
+        DownloadObject(displayName: "26", downloadUrlStr: Links.arrayOfLinks[3], savePath: "")]
 
     @IBOutlet weak var progressView1: UIProgressView!
     @IBOutlet weak var progressView2: UIProgressView!
@@ -35,9 +35,9 @@ class ViewController: UIViewController {
     
     override func viewDidLoad() {
         super.viewDidLoad()
-        _ = NetworkManager.sharedInstance.backgroundManager
         
         bindView()
+        FileMonitor.sharedInstance.startMonitor()
     }
     
     func getDownloadObject(tag: Int) -> DownloadObject {
@@ -54,32 +54,55 @@ class ViewController: UIViewController {
     
     func bindView() {
         let downloadObj1 = downloadObjs[0]
-        RACObserve(downloadObj1, keyPath: "reciveDataBytes").subscribeNext { (x) -> Void in
-//            print("totalDataBytes \(downloadObj1.totalDataBytes)")
-            let recivedSize = x as! Float
+        RACObserve(downloadObj1, keyPath: "reciveDataBytes").subscribeNext { (x) in
+//            let recivedSize = x as! Float
             if (downloadObj1.totalDataBytes > 0) {
-//                let progress = recivedSize / Float(downloadObj1.totalDataBytes)
+                let progress = Float((downloadObj1.downloadRequest?.progress.completedUnitCount)!) / Float((downloadObj1.downloadRequest?.progress.totalUnitCount)!)
                 dispatch_async(dispatch_get_main_queue()) {
-//                print("progress \(progress)")
-                    self.progressView1.progress = recivedSize / Float(downloadObj1.totalDataBytes)
+//                    self.progressView1.progress = recivedSize / Float(downloadObj1.totalDataBytes)
+                    self.progressView1.progress = progress
+                    print("\(downloadObj1.downloadRequest?.progress.localizedDescription)")
                 }
             }
         }
+        
+//        RACObserve(downloadObj1.downloadRequest, keyPath: "").subscribeNext { (x) in
+//            let recivedSize = x as! Float
+//            if (downloadObj1.totalDataBytes > 0) {
+//                dispatch_async(dispatch_get_main_queue()) {
+//                    self.progressView1.progress = recivedSize / Float(downloadObj1.totalDataBytes)
+//                }
+//            }
+//        }
+
         
         RACObserve(downloadObj1, keyPath: "speedInBytes").subscribeNext { (x) -> Void in
             dispatch_async(dispatch_get_main_queue()) {
                 self.speedLabel.text = self.presentSpeedString(x.floatValue)
             }
         }
-
+        
+        RACObserve(downloadObj1, keyPath: "downloadStatusRaw").subscribeNext { (x) -> Void in
+            dispatch_async(dispatch_get_main_queue()) {
+                let status = DownloadStatus(rawValue: x as! Int)
+                if status != .Executing {
+                    self.speedLabel.text = self.statusDes(status!)
+                }
+            }
+        }
+        
+//        let signal = RACSignal.interval(60, onScheduler: RACScheduler!)
+//        RACSignal *updateEventSignal = [[[RACSignal
+//            interval:(60 * minutesToNextHour)]
+//            take:1]
+//            concat:[RACSignal interval:3600]];
+        
         let downloadObj2 = downloadObjs[1]
         RACObserve(downloadObj2, keyPath: "reciveDataBytes").subscribeNext { (x) -> Void in
-//            print("reciveDataBytes \(downloadObj2.reciveDataBytes)")
-//            print("totalDataBytes \(downloadObj2.totalDataBytes)")
+            print("reciveDataBytes \(downloadObj2.reciveDataBytes)")
+            print("totalDataBytes \(downloadObj2.totalDataBytes)")
             let recivedSize = x as! Float
             if (downloadObj2.totalDataBytes > 0) {
-                let progress = recivedSize / Float(downloadObj2.totalDataBytes)
-//                print("progress \(progress)")
                 dispatch_async(dispatch_get_main_queue()) {
                     self.progressView2.progress = recivedSize / Float(downloadObj2.totalDataBytes)
                 }
@@ -163,5 +186,27 @@ class ViewController: UIViewController {
             return NSString(format: "%.1fK/s", Float(speed) / 1024) as String
         }
     }
+    
+    func statusDes(status: DownloadStatus) -> String {
+        switch status {
+        case .Failed:
+            return "Fail"
+        case .Finished:
+            return "Finished"
+        case .Paused:
+            return "Paused"
+        case .Executing:
+            return "Downloading"
+        case .Deleted:
+            return "Deleted"
+        default:
+            return "Unknown"
+        }
+    }
 
+    @IBAction func DelTask(sender: AnyObject) {
+        let downloadObj = getDownloadObject(sender.tag)
+        downloadObj.delete()
+    }
+    
 }

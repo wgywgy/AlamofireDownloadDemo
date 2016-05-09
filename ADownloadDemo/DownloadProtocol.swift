@@ -10,13 +10,9 @@ import Foundation
 
 protocol DownloadProtocol {
     func startDownload()
-    func startDownload(URLString: String, destinationUrl: NSURL)
     func cancelDownload()
     func resumeDownload()
 }
 
 extension DownloadProtocol {
-//    func startDownload() {
-//        startDownload(downloadUrlStr!, destinationUrl: NSURL(string: savePath!)!)
-//    }
 }
