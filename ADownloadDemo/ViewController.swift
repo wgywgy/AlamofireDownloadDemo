@@ -7,6 +7,7 @@
 //
 
 import UIKit
+import Alamofire
 
 struct Links {
     static let arrayOfLinks: [String] = [
@@ -32,13 +33,53 @@ class ViewController: UIViewController {
     @IBOutlet weak var speedLabel2: UILabel!
     @IBOutlet weak var speedLabel3: UILabel!
     @IBOutlet weak var speedLabel4: UILabel!
+    @IBOutlet weak var debugLabel: UILabel!
     
     override func viewDidLoad() {
         super.viewDidLoad()
         
         bindView()
         FileMonitor.sharedInstance.startMonitor()
+        
+        DownloadObjManager.sharedInstance.downloadObjs = downloadObjs
+        NSSetUncaughtExceptionHandler { exception in
+            DownloadObjManager.sharedInstance.cancelAllDownloadObj()
+        }
+        
+        Alamofire.Manager.SessionDelegate().taskDidComplete = { (session: NSURLSession, task: NSURLSessionTask, error: NSError?) in
+        }
+        
+//        Manager.SessionDelegate().sessionDidFinishEventsForBackgroundURLSession = { (session: NSURLSession) in
+//            print("session!!: \(session)")
+//        }
+
+//        let destination = Alamofire.Request.suggestedDownloadDestination(directory: .DocumentDirectory, domain: .UserDomainMask)
+//        Alamofire.download(.GET, "https://httpbin.org/stream/100", destination: destination)
+//            .progress { bytesRead, totalBytesRead, totalBytesExpectedToRead in
+//                print(totalBytesRead)
+//                
+//                dispatch_async(dispatch_get_main_queue()) {
+//                    print("Total bytes read on main queue: \(totalBytesRead)")
+//                }
+//            }
+//            .response { _, _, _, error in
+//                if let error = error {
+//                    print("Failed with error: \(error)")
+//                } else {
+//                    print("Downloaded file successfully")
+//                }
+//        }
+
+        NSNotificationCenter.defaultCenter().addObserver(self, selector:#selector(ViewController.UpdateUI), name:"URLSessionDidFinishEventsForBackgroundURLSession", object:nil)
     }
+    
+    
+//    func callCompletionHandlerForSession(notifation: NSNotification) {
+//        let completeHandler = DownloadNetworkManager.sharedInstance.backgroundCompletionHandler
+//        if (completeHandler != nil) {
+//            completeHandler!()
+//        }
+//    }
     
     func getDownloadObject(tag: Int) -> DownloadObject {
         if tag < 20  {
@@ -52,29 +93,52 @@ class ViewController: UIViewController {
         }
     }
     
+    func UpdateUI() {
+//        let index = DownloadObjManager.sharedInstance.downloadObjs.indexOf(DownloadObjManager.sharedInstance.currentDownloadItem!)
+//        
+//        if index == 3 {
+            dispatch_async(dispatch_get_main_queue()) { [weak self]() -> Void in
+                self?.view.backgroundColor = UIColor.yellowColor()
+//                self?.debugLabel.text = "c: \(index) | all: \(DownloadObjManager.sharedInstance.downloadObjs)"
+            }
+//        }
+//        URLSessionDidFinishEventsForBackgroundURLSession
+//         Force Download
+//        if index == 1 {
+////            dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0)) {
+//            dispatch_async(dispatch_get_main_queue()) { [weak self]() -> Void in
+////                guard 
+////                let aObj = DownloadObject(displayName: "24", downloadUrlStr: Links.arrayOfLinks[2], savePath: "")
+//                let aObj = self!.downloadObjs[3]
+//                let aObj = self.downloadObjs[3]
+//                aObj.startDownload()
+//            }
+//        }
+    }
+    
     func bindView() {
         let downloadObj1 = downloadObjs[0]
         RACObserve(downloadObj1, keyPath: "reciveDataBytes").subscribeNext { (x) in
-//            let recivedSize = x as! Float
+            let recivedSize = x as! Float
             if (downloadObj1.totalDataBytes > 0) {
-                let progress = Float((downloadObj1.downloadRequest?.progress.completedUnitCount)!) / Float((downloadObj1.downloadRequest?.progress.totalUnitCount)!)
-                dispatch_async(dispatch_get_main_queue()) {
-//                    self.progressView1.progress = recivedSize / Float(downloadObj1.totalDataBytes)
-                    self.progressView1.progress = progress
-                    print("\(downloadObj1.downloadRequest?.progress.localizedDescription)")
-                }
-            }
-        }
-        
-//        RACObserve(downloadObj1.downloadRequest, keyPath: "").subscribeNext { (x) in
-//            let recivedSize = x as! Float
-//            if (downloadObj1.totalDataBytes > 0) {
+//                let progress = Float((downloadObj1.downloadRequest?.progress.completedUnitCount)!) / Float((downloadObj1.downloadRequest?.progress.totalUnitCount)!)
+//            if let progress = downloadObj1.downloadRequest?.progress.fractionCompleted {
 //                dispatch_async(dispatch_get_main_queue()) {
-//                    self.progressView1.progress = recivedSize / Float(downloadObj1.totalDataBytes)
+//                    self.progressView1.progress = Float(progress)
 //                }
 //            }
-//        }
+                dispatch_async(dispatch_get_main_queue()) {
+                    self.progressView1.progress = recivedSize / Float(downloadObj1.totalDataBytes)
+//                    print("\(downloadObj1.downloadRequest?.progress.localizedAdditionalDescription)")
+                }
+            }
 
+        }
+        
+//        RACObserve(downloadObj1.downloadRequest?.progress, keyPath: "fractionCompleted").subscribeNext { (x) in
+//            let progress = x as! Float
+//            self.progressView1.progress = Float(progress)
+//        }
         
         RACObserve(downloadObj1, keyPath: "speedInBytes").subscribeNext { (x) -> Void in
             dispatch_async(dispatch_get_main_queue()) {
@@ -90,12 +154,6 @@ class ViewController: UIViewController {
                 }
             }
         }
-        
-//        let signal = RACSignal.interval(60, onScheduler: RACScheduler!)
-//        RACSignal *updateEventSignal = [[[RACSignal
-//            interval:(60 * minutesToNextHour)]
-//            take:1]
-//            concat:[RACSignal interval:3600]];
         
         let downloadObj2 = downloadObjs[1]
         RACObserve(downloadObj2, keyPath: "reciveDataBytes").subscribeNext { (x) -> Void in
@@ -152,7 +210,7 @@ class ViewController: UIViewController {
         sender.enabled = false
         print("start tag \(sender.tag)")
         let downloadObj = getDownloadObject(sender.tag)
-        downloadObj.startDownload()
+        downloadObj.startDownloadInQueue()
     }
     
     @IBAction func pauseOrContinue(sender: UIButton) {
@@ -177,6 +235,10 @@ class ViewController: UIViewController {
     
     @IBAction func carshApp(sender: AnyObject) {
         NSException(name: "App Crash", reason: "Simulate", userInfo: nil).raise()
+    }
+    
+    @IBAction func startAll(sender: AnyObject) {
+        DownloadObjManager.sharedInstance.startAll()
     }
     
     func presentSpeedString(speed: Float) -> String {

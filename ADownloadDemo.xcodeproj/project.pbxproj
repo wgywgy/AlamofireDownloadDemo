@@ -9,6 +9,7 @@
 /* Begin PBXBuildFile section */
 		1933DDC281434A325260EC0E /* Pods.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 1C6C99823444ACAF4C03EC26 /* Pods.framework */; };
 		3A45A2951CD207C10069AB00 /* RequestEx.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3A45A2941CD207C10069AB00 /* RequestEx.swift */; };
+		3AAA3BD61CEB3F9C0057C446 /* DownloadObjManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3AAA3BD51CEB3F9C0057C446 /* DownloadObjManager.swift */; };
 		3ABFD0431C89512E0095B42D /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3ABFD0421C89512E0095B42D /* AppDelegate.swift */; };
 		3ABFD0451C89512E0095B42D /* ViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3ABFD0441C89512E0095B42D /* ViewController.swift */; };
 		3ABFD0481C89512E0095B42D /* Main.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 3ABFD0461C89512E0095B42D /* Main.storyboard */; };
@@ -30,6 +31,7 @@
 		1C6C99823444ACAF4C03EC26 /* Pods.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		1E82549BC84D1763D5826452 /* Pods.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = Pods.release.xcconfig; path = "Pods/Target Support Files/Pods/Pods.release.xcconfig"; sourceTree = "<group>"; };
 		3A45A2941CD207C10069AB00 /* RequestEx.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = RequestEx.swift; sourceTree = "<group>"; };
+		3AAA3BD51CEB3F9C0057C446 /* DownloadObjManager.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = DownloadObjManager.swift; sourceTree = "<group>"; };
 		3ABFD03F1C89512E0095B42D /* ADownloadDemo.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = ADownloadDemo.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		3ABFD0421C89512E0095B42D /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
 		3ABFD0441C89512E0095B42D /* ViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ViewController.swift; sourceTree = "<group>"; };
@@ -80,6 +82,16 @@
 			name = Pods;
 			sourceTree = "<group>";
 		};
+		3AA94F071CF2EAB500E05439 /* noCare */ = {
+			isa = PBXGroup;
+			children = (
+				3ABFD0491C89512E0095B42D /* Assets.xcassets */,
+				3ABFD04B1C89512E0095B42D /* LaunchScreen.storyboard */,
+				3ABFD04E1C89512E0095B42D /* Info.plist */,
+			);
+			name = noCare;
+			sourceTree = "<group>";
+		};
 		3ABFD0361C89512E0095B42D = {
 			isa = PBXGroup;
 			children = (
@@ -101,16 +113,15 @@
 		3ABFD0411C89512E0095B42D /* ADownloadDemo */ = {
 			isa = PBXGroup;
 			children = (
+				3AA94F071CF2EAB500E05439 /* noCare */,
 				3ABFD05B1C898B990095B42D /* RAC */,
 				3ABFD0421C89512E0095B42D /* AppDelegate.swift */,
 				3ABFD0441C89512E0095B42D /* ViewController.swift */,
 				3AEEAF1D1CC9E628000FD7C0 /* DownloadCleaner.swift */,
 				3ABFD0461C89512E0095B42D /* Main.storyboard */,
-				3ABFD0491C89512E0095B42D /* Assets.xcassets */,
-				3ABFD04B1C89512E0095B42D /* LaunchScreen.storyboard */,
-				3ABFD04E1C89512E0095B42D /* Info.plist */,
 				3ABFD0551C8951B50095B42D /* DownloadProtocol.swift */,
 				3ABFD0571C895D060095B42D /* DownloadObject.swift */,
+				3AAA3BD51CEB3F9C0057C446 /* DownloadObjManager.swift */,
 				3AC648091C8D72C500E8186E /* DownloadNetworkManager.swift */,
 				3AEA13251C9AA78C00225B55 /* FileHelper.swift */,
 				3AEEAF3F1CCA08EE000FD7C0 /* FileMonitor.swift */,
@@ -167,6 +178,11 @@
 				TargetAttributes = {
 					3ABFD03E1C89512E0095B42D = {
 						CreatedOnToolsVersion = 7.2;
+						SystemCapabilities = {
+							com.apple.BackgroundModes = {
+								enabled = 0;
+							};
+						};
 					};
 				};
 			};
@@ -275,6 +291,7 @@
 				3AC6480A1C8D72C500E8186E /* DownloadNetworkManager.swift in Sources */,
 				3AEA13261C9AA78C00225B55 /* FileHelper.swift in Sources */,
 				3A45A2951CD207C10069AB00 /* RequestEx.swift in Sources */,
+				3AAA3BD61CEB3F9C0057C446 /* DownloadObjManager.swift in Sources */,
 				3AEEAF1E1CC9E628000FD7C0 /* DownloadCleaner.swift in Sources */,
 				3AEEAF421CCA0AAC000FD7C0 /* DirectoryMonitor.swift in Sources */,
 				3ABFD0431C89512E0095B42D /* AppDelegate.swift in Sources */,
@@ -395,10 +412,11 @@
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				CLANG_ENABLE_MODULES = YES;
+				CODE_SIGN_IDENTITY = "iPhone Developer";
 				DEFINES_MODULE = YES;
 				INFOPLIST_FILE = ADownloadDemo/Info.plist;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";
-				PRODUCT_BUNDLE_IDENTIFIER = com.dejauu.ADownloadDemo;
+				PRODUCT_BUNDLE_IDENTIFIER = com.dejauu.ADownloadDemo1;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SWIFT_OBJC_BRIDGING_HEADER = "ADownloadDemo/ADownloadDemo-Bridging-Header.h";
 				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
@@ -411,10 +429,11 @@
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				CLANG_ENABLE_MODULES = YES;
+				CODE_SIGN_IDENTITY = "iPhone Developer";
 				DEFINES_MODULE = YES;
 				INFOPLIST_FILE = ADownloadDemo/Info.plist;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";
-				PRODUCT_BUNDLE_IDENTIFIER = com.dejauu.ADownloadDemo;
+				PRODUCT_BUNDLE_IDENTIFIER = com.dejauu.ADownloadDemo1;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SWIFT_OBJC_BRIDGING_HEADER = "ADownloadDemo/ADownloadDemo-Bridging-Header.h";
 			};

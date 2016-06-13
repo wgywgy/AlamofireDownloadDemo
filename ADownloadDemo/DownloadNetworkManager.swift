@@ -10,30 +10,36 @@ import Foundation
 import Alamofire
 
 class DownloadNetworkManager {
-    
+
     class func defaultConfiguration() -> NSURLSessionConfiguration {
         let bundleId = "com.ex.sarrs"
         let sessionConfig = NSURLSessionConfiguration.backgroundSessionConfigurationWithIdentifier(bundleId + ".bg")
-//        sessionConfig.discretionary = true
         sessionConfig.allowsCellularAccess = true
+        sessionConfig.sessionSendsLaunchEvents = true
 //        sessionConfig.timeoutIntervalForResource = 4
-//        sessionConfig.timeoutIntervalForRequest = 3
+        
         return sessionConfig
     }
     
-    class var sharedInstance: DownloadNetworkManager {
-        struct Singleton {
-            static let instance = DownloadNetworkManager()
-        }
-        
-        return Singleton.instance
-    }
+    static let sharedInstance = DownloadNetworkManager()
     
     lazy var backgroundManager: Alamofire.Manager = {
-        let sessionDelegate = Manager.SessionDelegate()
+
+//        sessionDelegate.downloadTaskDidResumeAtOffset = { (session: NSURLSession, task: NSURLSessionDownloadTask, fileOffset: Int64, expectedTotalBytes: Int64) in
+//            print("fileOffset: \(fileOffset)")
+//            print("expectedTotalBytes: \(expectedTotalBytes)")
+//        }
         return Alamofire.Manager(configuration: DownloadNetworkManager.defaultConfiguration())
     }()
     
+//    var backgroundCompletionHandler: (() -> Void)? {
+//        get {
+//            return backgroundManager.backgroundCompletionHandler
+//        }
+//        set {
+//            backgroundManager.backgroundCompletionHandler = newValue
+//        }
+//    }
 }
 
 extension Manager.SessionDelegate {
@@ -48,14 +54,34 @@ extension Manager.SessionDelegate {
         dispatch_once(&download_swizzleToken.onceToken) {
             let cls: AnyClass! = Manager.SessionDelegate.self
             
-            let originalSelector = Selector("URLSession:task:didCompleteWithError:")
-            let swizzledSelector = Selector("privateURLSession:task:didCompleteWithError:")
+            let originalSelector = #selector(NSURLSessionTaskDelegate.URLSession(_:task:didCompleteWithError:))
+            let swizzledSelector = #selector(Manager.SessionDelegate.privateURLSession(_:task:didCompleteWithError:))
             
             let originalMethod = class_getInstanceMethod(cls, originalSelector)
             let swizzledMethod = class_getInstanceMethod(cls, swizzledSelector)
             
             method_exchangeImplementations(originalMethod, swizzledMethod)
+            
+            let oSelector = #selector(Manager.SessionDelegate.URLSessionDidFinishEventsForBackgroundURLSession(_:))
+            let nSelector = #selector(Manager.SessionDelegate.privateURLSessionDidFinishEventsForBackgroundURLSession(_:))
+//
+            let oSelectorMethod = class_getInstanceMethod(cls, oSelector)
+            let nSelectorMethod = class_getInstanceMethod(cls, nSelector)
+            
+            method_exchangeImplementations(oSelectorMethod, nSelectorMethod)
+//            DownloadTaskDelegate
+            
+//            let oSelector = #selector(Manager.SessionDelegate.URLSession(_:downloadTask:didFinishDownloadingToURL:))
+//            let nSelector = #selector(Manager.SessionDelegate.privateURLSession(_:downloadTask:didFinishDownloadingToURL:))
+//            
+//            let oSelectorMethod = class_getInstanceMethod(cls, oSelector)
+//            let nSelectorMethod = class_getInstanceMethod(cls, nSelector)
+//            
+//            method_exchangeImplementations(oSelectorMethod, nSelectorMethod)
+
+
         }
+        
     }
     
     func privateURLSession(session: NSURLSession, task: NSURLSessionTask, didCompleteWithError error: NSError?) {
@@ -63,9 +89,29 @@ extension Manager.SessionDelegate {
 
         if let userInfo = error?.userInfo as? [String: AnyObject],
             resumeData = userInfo[NSURLSessionDownloadTaskResumeData] as? NSData {
-                print("task Id: \(task.taskIdentifier) des: \(task.taskDescription)")
-                NSUserDefaults.standardUserDefaults().setObject(resumeData, forKey: task.originalRequest!.URL!.absoluteString)
-                NSUserDefaults.standardUserDefaults().synchronize()
+            print("task Id: \(task.taskIdentifier) des: \(task.taskDescription)")
+            let url = userInfo[NSURLErrorFailingURLStringErrorKey] as! String
+            NSUserDefaults.standardUserDefaults().setObject(resumeData, forKey: url)
+            NSUserDefaults.standardUserDefaults().synchronize()
         }
+    }
+    
+//    public func privateURLSession(
+//        session: NSURLSession,
+//        downloadTask: NSURLSessionDownloadTask,
+//        didFinishDownloadingToURL location: NSURL)
+//    {
+//        URLSession(session, downloadTask: downloadTask, didFinishDownloadingToURL: location)
+////        DownloadObjManager.sharedInstance.startDownloadNext()
+//    }
+    
+    public func privateURLSessionDidFinishEventsForBackgroundURLSession(session: NSURLSession) {
+        URLSessionDidFinishEventsForBackgroundURLSession(session)
+        
+        print("finish bg")
+        NSNotificationCenter.defaultCenter().postNotificationName("URLSessionDidFinishEventsForBackgroundURLSession",
+                                                                  object: session.configuration.identifier, userInfo: nil)
+
+//        DownloadObjManager.sharedInstance.startDownloadNext()
     }
 }

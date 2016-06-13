@@ -321,6 +321,11 @@ public class Manager {
             - parameter session: The session that no longer has any outstanding requests.
         */
         public func URLSessionDidFinishEventsForBackgroundURLSession(session: NSURLSession) {
+//            [[NSNotificationCenter defaultCenter] postNotificationName:@"URLSessionDidFinishEventsForBackgroundURLSession"
+//            object:session.configuration.identifier];
+//            NSNotificationCenter.defaultCenter().postNotificationName("URLSessionDidFinishEventsForBackgroundURLSession",
+//                                                                      object: session.configuration.identifier, userInfo: nil)
+
             sessionDidFinishEventsForBackgroundURLSession?(session)
         }
 

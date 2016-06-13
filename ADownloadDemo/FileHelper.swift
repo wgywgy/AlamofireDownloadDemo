@@ -9,6 +9,17 @@
 import UIKit
 
 class FileHelper: NSObject {
+    
+    class func document() -> String {
+        let paths = NSSearchPathForDirectoriesInDomains(.DocumentDirectory, .UserDomainMask, true)
+        return paths[0]
+    }
+
+    class func downloadFolder() -> String {
+        let paths = NSSearchPathForDirectoriesInDomains(.DocumentDirectory, .UserDomainMask, true)
+        return (paths[0] as NSString).stringByAppendingPathComponent("downloads")
+    }
+
     class func deleteFile(pathStr: String) {
         let fileManager = NSFileManager.defaultManager()
         do {

@@ -7,16 +7,40 @@
 //
 
 import UIKit
+import Alamofire
+
+enum DataType {
+    case AsString(String)
+//    case AsClosure((AnyObject?)->String)
+    case AsClosure(()->Void)
+}
+
+//var dict:Dictionary<String,DataType> = [
+//var dict = [
+//    "string":DataType.AsString("value")
+//    "closure":DataType.AsClosure({(argument:AnyObject) -> String in
+//        return "value"
+//        }
+//    )
+//]
 
 @UIApplicationMain
 class AppDelegate: UIResponder, UIApplicationDelegate {
 
     var window: UIWindow?
 
-
+    var backIdentifier: UIBackgroundTaskIdentifier?
+    
+//    var timer = NSTimer()
+    
+    var downloadNetworkManager: Alamofire.Manager?
+    
+    var completetionHandler: (() -> Void)?
+    
     func application(application: UIApplication, didFinishLaunchingWithOptions launchOptions: [NSObject: AnyObject]?) -> Bool {
-        _ = DownloadNetworkManager.sharedInstance.backgroundManager
-
+        downloadNetworkManager = DownloadNetworkManager.sharedInstance.backgroundManager
+        let homeDir = FileHelper.document()
+        print("Home :\(homeDir)")
         return true
     }
 
@@ -26,8 +50,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
     }
 
     func applicationDidEnterBackground(application: UIApplication) {
-        // Use this method to release shared resources, save user data, invalidate timers, and store enough application state information to restore your application to its current state in case it is terminated later.
-        // If your application supports background execution, this method is called instead of applicationWillTerminate: when the user quits.
+//        doUpdate()
     }
 
     func applicationWillEnterForeground(application: UIApplication) {
@@ -42,9 +65,53 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
         print("terminate")
     }
 
-//    func application(application: UIApplication, handleEventsForBackgroundURLSession identifier: String, completionHandler: () -> Void) {
-//        NetworkManager.sharedInstance.backgroundCompletionHandler = completionHandler
-//    }
+    
+    func HandleException(exception: NSException) {
+        print("App crashing with exception \(exception)")
+    }
+    
+    func HandleSignal(signal: Int) {
+        print("We received a signal: \(signal)")
+    }
+    
+    func application(application: UIApplication, handleEventsForBackgroundURLSession identifier: String, completionHandler: () -> Void) {
+////        DownloadObjManager.sharedInstance.s
+//        print("handle compelete.")
+//        DownloadObjManager.sharedInstance.startDownloadNext()
+//        downloadNetworkManager?.backgroundCompletionHandler = completionHandler
+//        DownloadNetworkManager.sharedInstance.backgroundCompletionHandler = completionHandler
+        
+        
+//        let userInfo: [String : AnyObject] = ["sessionIdentifier": identifier, "completionHandler": completionHandler]
+//        let userInfo: [String : DataType] = ["sessionIdentifier": DataType.AsString(identifier), "completionHandler": DataType.AsClosure(completionHandler)]
+        
+//        self.completetionHandler = completionHandler
+//        DownloadNetworkManager.sharedInstance.backgroundManager.backgroundCompletionHandler = completionHandler
+//        NSNotificationCenter.defaultCenter().postNotificationName("BackgroundSessionUpdated", object: nil, userInfo: nil)
+        
+//        NSDictionary *userInfo = @{@"sessionIdentifier": identifier,
+//            @"completionHandler": completionHandler};
+        
+    }
+ 
+    func doUpdate () {
+        dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0)) {
+            let taskID = self.beginBackgroundUpdateTask()
+            
+            print("do someTask")
+//            NSNotificationCenter.defaultCenter().postNotificationName("update UI", object: nil, userInfo: nil)
+            
+            self.endBackgroundUpdateTask(taskID)
+        }
+    }
+    
+    func beginBackgroundUpdateTask() -> UIBackgroundTaskIdentifier {
+        return UIApplication.sharedApplication().beginBackgroundTaskWithExpirationHandler({})
+    }
+    
+    func endBackgroundUpdateTask(taskID: UIBackgroundTaskIdentifier) {
+        UIApplication.sharedApplication().endBackgroundTask(taskID)
+    }
 
 }
 
