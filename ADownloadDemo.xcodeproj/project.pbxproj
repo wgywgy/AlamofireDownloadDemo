@@ -19,6 +19,7 @@
 		3ABFD0581C895D060095B42D /* DownloadObject.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3ABFD0571C895D060095B42D /* DownloadObject.swift */; };
 		3AC6480A1C8D72C500E8186E /* DownloadNetworkManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3AC648091C8D72C500E8186E /* DownloadNetworkManager.swift */; };
 		3AEA13261C9AA78C00225B55 /* FileHelper.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3AEA13251C9AA78C00225B55 /* FileHelper.swift */; };
+		3AEAE5D81D0EA41D00F12BA3 /* DownloadSpeedExtension.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3AEAE5D71D0EA41D00F12BA3 /* DownloadSpeedExtension.swift */; };
 		3AEEAF1E1CC9E628000FD7C0 /* DownloadCleaner.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3AEEAF1D1CC9E628000FD7C0 /* DownloadCleaner.swift */; };
 		3AEEAF401CCA08EE000FD7C0 /* FileMonitor.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3AEEAF3F1CCA08EE000FD7C0 /* FileMonitor.swift */; };
 		3AEEAF421CCA0AAC000FD7C0 /* DirectoryMonitor.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3AEEAF411CCA0AAC000FD7C0 /* DirectoryMonitor.swift */; };
@@ -44,6 +45,7 @@
 		3AC647FF1C89907600E8186E /* ADownloadDemo-Bridging-Header.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "ADownloadDemo-Bridging-Header.h"; sourceTree = "<group>"; };
 		3AC648091C8D72C500E8186E /* DownloadNetworkManager.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = DownloadNetworkManager.swift; sourceTree = "<group>"; };
 		3AEA13251C9AA78C00225B55 /* FileHelper.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = FileHelper.swift; sourceTree = "<group>"; };
+		3AEAE5D71D0EA41D00F12BA3 /* DownloadSpeedExtension.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = DownloadSpeedExtension.swift; sourceTree = "<group>"; };
 		3AEEAF1D1CC9E628000FD7C0 /* DownloadCleaner.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = DownloadCleaner.swift; sourceTree = "<group>"; };
 		3AEEAF3F1CCA08EE000FD7C0 /* FileMonitor.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = FileMonitor.swift; sourceTree = "<group>"; };
 		3AEEAF411CCA0AAC000FD7C0 /* DirectoryMonitor.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = DirectoryMonitor.swift; sourceTree = "<group>"; };
@@ -117,6 +119,7 @@
 				3ABFD05B1C898B990095B42D /* RAC */,
 				3ABFD0421C89512E0095B42D /* AppDelegate.swift */,
 				3ABFD0441C89512E0095B42D /* ViewController.swift */,
+				3AEAE5D71D0EA41D00F12BA3 /* DownloadSpeedExtension.swift */,
 				3AEEAF1D1CC9E628000FD7C0 /* DownloadCleaner.swift */,
 				3ABFD0461C89512E0095B42D /* Main.storyboard */,
 				3ABFD0551C8951B50095B42D /* DownloadProtocol.swift */,
@@ -298,6 +301,7 @@
 				3ABFD0581C895D060095B42D /* DownloadObject.swift in Sources */,
 				3ABFD0561C8951B50095B42D /* DownloadProtocol.swift in Sources */,
 				3AEEAF401CCA08EE000FD7C0 /* FileMonitor.swift in Sources */,
+				3AEAE5D81D0EA41D00F12BA3 /* DownloadSpeedExtension.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

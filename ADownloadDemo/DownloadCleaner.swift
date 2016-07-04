@@ -38,6 +38,22 @@ class DownloadCleaner: NSObject {
             print("cleanTmpDir err: \(err)")
         }
     }
+    
+    class func cleanTmpFileOnLauch() {
+        let path = NSTemporaryDirectory()
+        do {
+            let array = try NSFileManager.defaultManager().contentsOfDirectoryAtPath(path)
+            for string in array {
+                let toRemovePath = path.stringByAppendingPathComponent(string)
+                print("toRemovePath \(toRemovePath)")
+                if toRemovePath.containsString("CFNetworkDownload_") {
+                    try NSFileManager.defaultManager().removeItemAtPath(toRemovePath)
+                }
+            }
+        } catch let err {
+            print("cleanTmpDir err: \(err)")
+        }
+    }
 }
 
 extension String {

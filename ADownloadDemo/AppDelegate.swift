@@ -35,12 +35,15 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
     
     var downloadNetworkManager: Alamofire.Manager?
     
-    var completetionHandler: (() -> Void)?
+    var backgroundTransferCompletionHandler: (() -> Void)?
     
     func application(application: UIApplication, didFinishLaunchingWithOptions launchOptions: [NSObject: AnyObject]?) -> Bool {
         downloadNetworkManager = DownloadNetworkManager.sharedInstance.backgroundManager
         let homeDir = FileHelper.document()
         print("Home :\(homeDir)")
+        
+//        DownloadCleaner.cleanTmpFileOnLauch()
+        
         return true
     }
 
@@ -91,7 +94,8 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
         
 //        NSDictionary *userInfo = @{@"sessionIdentifier": identifier,
 //            @"completionHandler": completionHandler};
-        
+     
+        backgroundTransferCompletionHandler = completionHandler
     }
  
     func doUpdate () {

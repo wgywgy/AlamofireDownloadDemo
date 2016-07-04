@@ -53,7 +53,7 @@ class DownloadObject: NSObject {
         NSUserDefaults.standardUserDefaults().setObject(downloadUrlStr, forKey: displayName)
         
         speedTimer =
-            NSTimer.scheduledTimerWithTimeInterval(0.7, target: self, selector: #selector(DownloadObject.updateSpeed), userInfo: nil, repeats: true)
+            NSTimer.scheduledTimerWithTimeInterval(0.8, target: self, selector: #selector(DownloadObject.updateSpeed), userInfo: nil, repeats: true)
         speedTimer!.fire()
     }
     
@@ -71,7 +71,7 @@ extension DownloadObject {
             let interval = NSDate().timeIntervalSince1970 - beginDownloadTime
             averageSpeedInBytes = Double(every2SReciveBytes) / interval
             
-            if interval >= 1.4 {
+            if interval >= 4  {
                 beginDownloadTime = NSDate().timeIntervalSince1970
                 every2SReciveBytes = 0
             }
@@ -82,7 +82,7 @@ extension DownloadObject {
     
     func getEMASpeed(avgSpeed avgSpeed: Double, lastSpeed: Double) -> Double {
         //        http://stackoverflow.com/questions/2779600/how-to-estimate-download-time-remaining-accurately
-        if avgSpeed == 0 { return 0 }
+//        if avgSpeed == 0 { return 0 }
         
         let SMOOTHING_FACTOR = 0.007
         let emaSpeed = SMOOTHING_FACTOR * lastSpeed + (1 - SMOOTHING_FACTOR) * avgSpeed
@@ -98,6 +98,7 @@ extension DownloadObject {
             lastSpeedInBytes = Double(bytes) / interval
             oldRecivedTime = NSDate().timeIntervalSince1970
         }
+
     }
     
 }

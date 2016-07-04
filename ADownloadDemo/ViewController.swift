@@ -35,6 +35,9 @@ class ViewController: UIViewController {
     @IBOutlet weak var speedLabel4: UILabel!
     @IBOutlet weak var debugLabel: UILabel!
     
+    var speedTimer: NSTimer?
+    var oldProgress: Float = 0
+    
     override func viewDidLoad() {
         super.viewDidLoad()
         
@@ -46,6 +49,10 @@ class ViewController: UIViewController {
             DownloadObjManager.sharedInstance.cancelAllDownloadObj()
         }
         
+//        speedTimer =
+//            NSTimer.scheduledTimerWithTimeInterval(0.8, target: self, selector: #selector(ViewController.updateSpeed), userInfo: nil, repeats: true)
+//        speedTimer!.fire()
+
         Alamofire.Manager.SessionDelegate().taskDidComplete = { (session: NSURLSession, task: NSURLSessionTask, error: NSError?) in
         }
         
@@ -114,25 +121,27 @@ class ViewController: UIViewController {
 //                aObj.startDownload()
 //            }
 //        }
+        postNotify()
+    }
+    
+    func postNotify() {
+        let localNotification = UILocalNotification()
+        localNotification.alertBody = "All files have been downloaded"
+        UIApplication.sharedApplication().presentLocalNotificationNow(localNotification)
     }
     
     func bindView() {
         let downloadObj1 = downloadObjs[0]
-        RACObserve(downloadObj1, keyPath: "reciveDataBytes").subscribeNext { (x) in
+        let timer = RACSignal.interval(0.05, onScheduler: RACScheduler.mainThreadScheduler())
+
+        RACObserve(downloadObj1, keyPath: "reciveDataBytes").sample(timer).subscribeNext { (x) in
             let recivedSize = x as! Float
             if (downloadObj1.totalDataBytes > 0) {
-//                let progress = Float((downloadObj1.downloadRequest?.progress.completedUnitCount)!) / Float((downloadObj1.downloadRequest?.progress.totalUnitCount)!)
-//            if let progress = downloadObj1.downloadRequest?.progress.fractionCompleted {
-//                dispatch_async(dispatch_get_main_queue()) {
-//                    self.progressView1.progress = Float(progress)
-//                }
-//            }
                 dispatch_async(dispatch_get_main_queue()) {
                     self.progressView1.progress = recivedSize / Float(downloadObj1.totalDataBytes)
 //                    print("\(downloadObj1.downloadRequest?.progress.localizedAdditionalDescription)")
                 }
             }
-
         }
         
 //        RACObserve(downloadObj1.downloadRequest?.progress, keyPath: "fractionCompleted").subscribeNext { (x) in
@@ -140,11 +149,11 @@ class ViewController: UIViewController {
 //            self.progressView1.progress = Float(progress)
 //        }
         
-        RACObserve(downloadObj1, keyPath: "speedInBytes").subscribeNext { (x) -> Void in
-            dispatch_async(dispatch_get_main_queue()) {
-                self.speedLabel.text = self.presentSpeedString(x.floatValue)
-            }
-        }
+//        RACObserve(downloadObj1, keyPath: "speedInBytes").subscribeNext { (x) -> Void in
+//            dispatch_async(dispatch_get_main_queue()) {
+//                self.speedLabel.text = x.doubleValue.KB_S
+//            }
+//        }
         
         RACObserve(downloadObj1, keyPath: "downloadStatusRaw").subscribeNext { (x) -> Void in
             dispatch_async(dispatch_get_main_queue()) {
@@ -169,7 +178,7 @@ class ViewController: UIViewController {
         
         RACObserve(downloadObj2, keyPath: "speedInBytes").subscribeNext { (x) -> Void in
             dispatch_async(dispatch_get_main_queue()) {
-                self.speedLabel2.text = self.presentSpeedString(x.floatValue)
+                self.speedLabel2.text = x.doubleValue.KB_S
             }
         }
 
@@ -185,7 +194,7 @@ class ViewController: UIViewController {
         
         RACObserve(downloadObj3, keyPath: "speedInBytes").subscribeNext { (x) -> Void in
             dispatch_async(dispatch_get_main_queue()) {
-                self.speedLabel3.text = self.presentSpeedString(x.floatValue)
+                self.speedLabel3.text = x.doubleValue.KB_S
             }
         }
         
@@ -201,7 +210,7 @@ class ViewController: UIViewController {
         
         RACObserve(downloadObj4, keyPath: "speedInBytes").subscribeNext { (x) -> Void in
             dispatch_async(dispatch_get_main_queue()) {
-                self.speedLabel4.text = self.presentSpeedString(x.floatValue)
+                self.speedLabel4.text = x.doubleValue.KB_S
             }
         }
     }
@@ -241,14 +250,6 @@ class ViewController: UIViewController {
         DownloadObjManager.sharedInstance.startAll()
     }
     
-    func presentSpeedString(speed: Float) -> String {
-        if Float(speed) / 1024 / 1024 > 1 {
-            return NSString(format: "%.2fM/s", Float(speed) / 1024 / 1024) as String
-        } else {
-            return NSString(format: "%.1fK/s", Float(speed) / 1024) as String
-        }
-    }
-    
     func statusDes(status: DownloadStatus) -> String {
         switch status {
         case .Failed:
@@ -271,4 +272,11 @@ class ViewController: UIViewController {
         downloadObj.delete()
     }
     
+//    func updateSpeed() {
+//        if oldProgress == 0 {
+//            oldProgress = self.progressView1.progress
+//        } else {
+//           let speed = (oldProgress - self.progressView1.progress) / 0.8
+//        }
+//    }
 }
