@@ -158,7 +158,6 @@
 				3ABFD03D1C89512E0095B42D /* Resources */,
 				2B98FFB9B713DA2954206B9D /* Embed Pods Frameworks */,
 				CB0857D673A4F56A32CA6D53 /* Copy Pods Resources */,
-				6067C6E85ECD207E1D6F857A /* Find unused imports */,
 			);
 			buildRules = (
 			);
@@ -250,20 +249,6 @@
 			shellPath = /bin/sh;
 			shellScript = "diff \"${PODS_ROOT}/../Podfile.lock\" \"${PODS_ROOT}/Manifest.lock\" > /dev/null\nif [[ $? != 0 ]] ; then\n    cat << EOM\nerror: The sandbox is not in sync with the Podfile.lock. Run 'pod install' or update your CocoaPods installation.\nEOM\n    exit 1\nfi\n";
 			showEnvVarsInLog = 0;
-		};
-		6067C6E85ECD207E1D6F857A /* Find unused imports */ = {
-			isa = PBXShellScriptBuildPhase;
-			buildActionMask = 2147483647;
-			files = (
-			);
-			inputPaths = (
-			);
-			name = "Find unused imports";
-			outputPaths = (
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-			shellPath = /bin/sh;
-			shellScript = "/bin/sh \"/Users/wuguanyu/Library/Application Support/Developer/Shared/Xcode/Plug-ins/xcfui.xcplugin/Contents/Resources/fui_script.sh\" \"/Users/wuguanyu/Desktop/Demo/ADownloadDemo\"";
 		};
 		CB0857D673A4F56A32CA6D53 /* Copy Pods Resources */ = {
 			isa = PBXShellScriptBuildPhase;
